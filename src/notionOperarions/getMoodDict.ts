@@ -12,10 +12,8 @@ export const getMoodDict = async (notion: Client) => {
   const rows = response.results.map((el) => (el as DatabaseObjectResponse).properties)
   return rows.map((el) => ({
     // @ts-ignore
-    id: el.Id.rich_text[0].text.content,
-    // @ts-ignore
-    color: el.color.rich_text[0].text.content,
-    // @ts-ignore
     name: el.name.rich_text[0].text.content,
+    // @ts-ignore
+    type: el.type.rich_text[0].text.content,
   }))
 }

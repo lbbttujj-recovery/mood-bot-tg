@@ -1,45 +1,34 @@
 import { session, Telegraf } from 'telegraf'
 import * as dotenv from 'dotenv'
-import { assessScene, describeScene, moodScene } from './scenes/AddScenes'
+import { addMoodNameScene, describeScene, moodScene } from './scenes/addRowScenes'
 import { Stage } from 'telegraf/scenes'
+import process from 'process'
+import { moodNameScene, moodTypeScene } from './scenes/addMoodScene'
 
 dotenv.config()
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN || '')
 
-const stage = new Stage([moodScene, describeScene, assessScene])
+//todo: Поменять moodNameScene название
+const newMoodStage = new Stage([moodScene, addMoodNameScene, describeScene, moodNameScene, moodTypeScene])
 
 bot.use(session())
 // @ts-ignore
-bot.use(stage.middleware())
+bot.use(newMoodStage.middleware())
 
-bot.command('start', async (ctx) => {
+bot.command('row', async (ctx) => {
   // @ts-ignore
-  ctx.scene.enter('mood')
+  ctx.scene.enter('addMoodType')
+})
+
+bot.command('mood', async (ctx) => {
+  // @ts-ignore
+  ctx.scene.enter('moodName')
 })
 
 bot.on('text', async (ctx) => {
-  await ctx.reply('ты не в сцене')
+  await ctx.reply('ты не в сцене /row \n /mood')
 })
 
 console.log('app running')
 bot.launch()
-
-// const databaseId = process.env.NOTION_DATABASE_ID || ''
-//
-//
-//
-
-// bot.on('text', (ctx) => {
-//   const userId = ctx.from.id
-//   const session = userSession[userId]
-//
-//   if (!session) {
-//     ctx.reply('Чтобы lj, введите команду /add')
-//     return
-//   }
-//   session.comment = ctx.message.text
-//   console.log(userSession)
-//   ctx.reply('Данные успешно отправлены.')
-//   delete userSession[userId]
-// })

@@ -4,39 +4,40 @@ export type Params = {
   notion: Client
   databaseId: string
   mood: string
-  comment: string
+  type: string
 }
-export const createRow = async ({ notion, databaseId, mood, comment }: Params) => {
-  console.log(mood)
+export const addMood = async ({ notion, databaseId, mood, type }: Params) => {
   await notion.pages.create({
     parent: { database_id: databaseId },
     properties: {
-      Name: {
+      Mood: {
         title: [
           {
             text: {
-              content: 'Дневник настроения',
+              content: '',
             },
           },
         ],
       },
-      Mood: {
-        multi_select: [{ name: mood }],
-      },
-      Description: {
+      name: {
         rich_text: [
           {
             type: 'text',
             text: {
-              content: comment,
+              content: mood,
             },
           },
         ],
       },
-      Date: {
-        date: {
-          start: new Date().toISOString(),
-        },
+      type: {
+        rich_text: [
+          {
+            type: 'text',
+            text: {
+              content: type,
+            },
+          },
+        ],
       },
     },
   })
