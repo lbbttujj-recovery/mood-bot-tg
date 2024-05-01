@@ -4,7 +4,7 @@ import { Client } from '@notionhq/client'
 import * as dotenv from 'dotenv'
 import { createRow } from '../notionOperarions/createRow'
 import * as process from 'process'
-import { moodType } from './addMoodScene'
+import { moodType } from '../consts'
 dotenv.config()
 
 const notion = new Client({ auth: process.env.NOTION_KEY })
@@ -14,18 +14,26 @@ export const addMoodNameScene = new Scenes.BaseScene<Scenes.SceneContext>('addMo
 export const describeScene = new Scenes.BaseScene<Scenes.SceneContext>('addDescription')
 
 moodScene.enter(async (ctx) => {
-  const buttons = moodType.map((moodType) => [
-    {
-      text: moodType,
-      callback_data: `id=${moodType}`,
-    },
-  ])
+  const buttons = [
+    ...moodType.map((moodType) => [
+      {
+        text: moodType,
+        callback_data: `id=${moodType}`,
+      },
+    ]),
+    [{ text: 'Назад', callback_data: 'back' }],
+  ]
   await ctx.sendChatAction('typing')
   await ctx.reply('что случилось?', {
     reply_markup: {
       inline_keyboard: buttons,
     },
   })
+})
+
+moodScene.action(/back/, async (ctx) => {
+  await ctx.scene.leave()
+  ctx.reply('Ладно, давай еще раз')
 })
 
 moodScene.action(/id=\W+/, async (ctx) => {
@@ -36,15 +44,17 @@ moodScene.action(/id=\W+/, async (ctx) => {
 addMoodNameScene.enter(async (ctx) => {
   getMoodDict(notion).then(async (moodDictionary) => {
     if (moodDictionary) {
-      console.log(moodDictionary.filter((mood) => mood.type === newRow.moodType))
-      const buttons = moodDictionary
-        .filter((mood) => mood.type === newRow.moodType)
-        .map((mood) => [
-          {
-            text: mood.name,
-            callback_data: `id=${mood.name}`,
-          },
-        ])
+      const buttons = [
+        ...moodDictionary
+          .filter((mood) => mood.type === newRow.moodType)
+          .map((mood) => [
+            {
+              text: mood.name,
+              callback_data: `id=${mood.name}`,
+            },
+          ]),
+        [{ text: 'Назад', callback_data: 'back' }],
+      ]
       await ctx.sendChatAction('typing')
       await ctx.reply('что случилось?', {
         reply_markup: {
@@ -53,6 +63,10 @@ addMoodNameScene.enter(async (ctx) => {
       })
     }
   })
+})
+
+addMoodNameScene.action(/back/, async (ctx) => {
+  await ctx.scene.enter('addMoodType')
 })
 
 addMoodNameScene.action(/id=\W+/, async (ctx) => {

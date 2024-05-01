@@ -32,6 +32,7 @@
   "dependencies": {
     "@notionhq/client": "^2.2.14",
     "express": "^4.19.2",
+    "openai": "^4.38.2",
     "telegraf": "^4.16.3"
   }
 }

@@ -1,9 +1,9 @@
 import { session, Telegraf } from 'telegraf'
 import * as dotenv from 'dotenv'
-import { addMoodNameScene, describeScene, moodScene } from './scenes/addRowScenes'
+import { addMoodNameScene, describeScene, moodScene } from './scenes/rowScenes'
 import { Stage } from 'telegraf/scenes'
 import process from 'process'
-import { moodNameScene, moodTypeScene } from './scenes/addMoodScene'
+import { moodNameScene, moodTypeScene } from './scenes/moodScene'
 
 dotenv.config()
 
@@ -26,8 +26,14 @@ bot.command('mood', async (ctx) => {
   ctx.scene.enter('moodName')
 })
 
+bot.command('back', async (ctx) => {
+  // @ts-ignore
+  ctx.scene.leave()
+  ctx.reply('Ладно, давай еще раз')
+})
+
 bot.on('text', async (ctx) => {
-  await ctx.reply('ты не в сцене /row \n /mood')
+  await ctx.reply('ты не в сцене /row \n /mood \n /back')
 })
 
 console.log('app running')

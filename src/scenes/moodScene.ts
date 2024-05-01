@@ -3,6 +3,7 @@ import { Client } from '@notionhq/client'
 import * as dotenv from 'dotenv'
 import * as process from 'process'
 import { addMood } from '../notionOperarions/addMood'
+import { moodType } from '../consts'
 dotenv.config()
 
 const notion = new Client({ auth: process.env.NOTION_KEY })
@@ -12,13 +13,15 @@ const newMood: { moodName?: string; type?: string } = {}
 export const moodNameScene = new Scenes.BaseScene<Scenes.SceneContext>('moodName')
 export const moodTypeScene = new Scenes.BaseScene<Scenes.SceneContext>('moodType')
 
-export const moodType = ['физическое', 'социальное', 'экзистенциальное', 'эмоциональное']
-const moodTypesButtons = moodType.map((mood) => [
-  {
-    text: mood,
-    callback_data: `mood=${mood}`,
-  },
-])
+const moodTypesButtons = [
+  ...moodType.map((mood) => [
+    {
+      text: mood,
+      callback_data: `mood=${mood}`,
+    },
+  ]),
+  [{ text: 'Назад', callback_data: 'back' }],
+]
 
 moodNameScene.enter(async (ctx) => {
   await ctx.sendChatAction('typing')
@@ -26,8 +29,13 @@ moodNameScene.enter(async (ctx) => {
 })
 
 moodNameScene.on('text', async (ctx) => {
-  newMood.moodName = ctx.message.text
-  await ctx.scene.enter('moodType')
+  if (ctx.message.text === '/back') {
+    ctx.scene.leave()
+    ctx.reply('Ладно, давай еще раз')
+  } else {
+    newMood.moodName = ctx.message.text
+    await ctx.scene.enter('moodType')
+  }
 })
 
 moodTypeScene.enter(async (ctx) => {
@@ -37,6 +45,10 @@ moodTypeScene.enter(async (ctx) => {
       inline_keyboard: moodTypesButtons,
     },
   })
+})
+
+moodTypeScene.action('back', async (ctx) => {
+  await ctx.scene.enter('moodName')
 })
 
 moodTypeScene.action(/mood=\S+/, async (ctx) => {

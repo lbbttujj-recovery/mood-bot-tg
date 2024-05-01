@@ -7,7 +7,6 @@ export type Params = {
   comment: string
 }
 export const createRow = async ({ notion, databaseId, mood, comment }: Params) => {
-  console.log(mood)
   await notion.pages.create({
     parent: { database_id: databaseId },
     properties: {
