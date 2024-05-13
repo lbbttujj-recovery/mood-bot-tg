@@ -10,8 +10,10 @@ const notion = new Client({ auth: process.env.NOTION_KEY })
 const databaseId = process.env.NOTION_MOOD_DB_ID || ''
 const newMood: { moodName?: string; type?: string } = {}
 
-export const moodNameScene = new Scenes.BaseScene<Scenes.SceneContext>('moodName')
-export const moodTypeScene = new Scenes.BaseScene<Scenes.SceneContext>('moodType')
+const moodNameScene = new Scenes.BaseScene<Scenes.SceneContext>('moodName')
+const moodTypeScene = new Scenes.BaseScene<Scenes.SceneContext>('moodType')
+
+export const moodScenes = [moodTypeScene, moodNameScene]
 
 const moodTypesButtons = [
   ...moodType.map((mood) => [

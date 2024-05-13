@@ -1,17 +1,16 @@
 import { session, Telegraf } from 'telegraf'
 import * as dotenv from 'dotenv'
-import { addMoodNameScene, describeScene, moodScene } from './scenes/rowScenes'
+import { rowScenes } from './scenes/rowScenes'
 import { Stage } from 'telegraf/scenes'
 import process from 'process'
-import { moodNameScene, moodTypeScene } from './scenes/moodScene'
+import { moodScenes } from './scenes/moodScene'
 import { aiScenes } from './scenes/analiseScene'
 
 dotenv.config()
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN || '')
 
-//todo: Поменять moodNameScene название
-const newMoodStage = new Stage([moodScene, addMoodNameScene, describeScene, moodNameScene, moodTypeScene, ...aiScenes])
+const newMoodStage = new Stage([...rowScenes, ...moodScenes, ...aiScenes])
 
 bot.use(session())
 // @ts-ignore

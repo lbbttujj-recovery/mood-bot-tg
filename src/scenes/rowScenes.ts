@@ -9,9 +9,11 @@ dotenv.config()
 
 const notion = new Client({ auth: process.env.NOTION_KEY })
 const newRow: { moodType?: string; mood?: string; comment?: string } = {}
-export const moodScene = new Scenes.BaseScene<Scenes.SceneContext>('addMoodType')
-export const addMoodNameScene = new Scenes.BaseScene<Scenes.SceneContext>('addMoodName')
-export const describeScene = new Scenes.BaseScene<Scenes.SceneContext>('addDescription')
+const moodScene = new Scenes.BaseScene<Scenes.SceneContext>('addMoodType')
+const addMoodNameScene = new Scenes.BaseScene<Scenes.SceneContext>('addMoodName')
+const describeScene = new Scenes.BaseScene<Scenes.SceneContext>('addDescription')
+
+export const rowScenes = [moodScene, addMoodNameScene, describeScene]
 
 moodScene.enter(async (ctx) => {
   const buttons = [
