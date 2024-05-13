@@ -4,13 +4,14 @@ import { addMoodNameScene, describeScene, moodScene } from './scenes/rowScenes'
 import { Stage } from 'telegraf/scenes'
 import process from 'process'
 import { moodNameScene, moodTypeScene } from './scenes/moodScene'
+import { aiScenes } from './scenes/analiseScene'
 
 dotenv.config()
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN || '')
 
 //todo: Поменять moodNameScene название
-const newMoodStage = new Stage([moodScene, addMoodNameScene, describeScene, moodNameScene, moodTypeScene])
+const newMoodStage = new Stage([moodScene, addMoodNameScene, describeScene, moodNameScene, moodTypeScene, ...aiScenes])
 
 bot.use(session())
 // @ts-ignore
@@ -32,8 +33,18 @@ bot.command('back', async (ctx) => {
   ctx.reply('Ладно, давай еще раз')
 })
 
+bot.command('analise', async (ctx) => {
+  // @ts-ignore
+  ctx.scene.enter('roles')
+})
+
+bot.command('test', async (ctx) => {
+  // @ts-ignore
+  ctx.scene.enter('roles')
+})
+
 bot.on('text', async (ctx) => {
-  await ctx.reply('ты не в сцене /row \n /mood \n /back')
+  await ctx.reply('ты не в сцене /row \n /mood \n /back \n /analise \n /test')
 })
 
 console.log('app running')
