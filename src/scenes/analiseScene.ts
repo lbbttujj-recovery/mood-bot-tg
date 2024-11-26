@@ -46,10 +46,13 @@ aiCustomScene.enter((ctx) => {
 aiCustomScene.on('text', async (ctx) => {
   const prompt = ctx.message.text
   await ctx.reply('Хорошо, начинаю анализ по выбранному запросу')
+  console.log(prompt)
   await ctx.sendChatAction('typing')
-  const analise = await ai.analise(prompt, await getDataFromDb())
-  await ctx.reply(analise || 'Ошибка')
+  await getDataFromDb()
+  // const analise = await ai.analise(prompt, await getDataFromDb())
+  // await ctx.reply(analise || 'Ошибка')
 
+  await ctx.reply('work done')
   await ctx.scene.leave()
 })
 

@@ -5,6 +5,10 @@ import { Stage } from 'telegraf/scenes'
 import process from 'process'
 import { moodScenes } from './scenes/moodScene'
 import { aiScenes } from './scenes/analiseScene'
+import * as fs from 'fs'
+import { imageToBase64 } from './utils/imageToBase64'
+import path from 'node:path'
+import axios from 'axios'
 
 dotenv.config()
 
@@ -16,34 +20,83 @@ bot.use(session())
 // @ts-ignore
 bot.use(newMoodStage.middleware())
 
-bot.command('row', async (ctx) => {
-  // @ts-ignore
-  ctx.scene.enter('addMoodType')
+bot.on('callback_query', (ctx) => {
+  const { data } = ctx.callbackQuery as { data: string }
+  switch (data) {
+    case 'row':
+      // @ts-ignore
+      ctx.scene.enter('addMoodType')
+      break
+    case 'mood':
+      // @ts-ignore
+      ctx.scene.enter('moodName')
+      break
+    case 'analise':
+      // @ts-ignore
+      ctx.scene.enter('roles')
+      break
+    case 'back':
+      // @ts-ignore
+      ctx.scene.leave()
+      ctx.reply('Ладно, давай еще раз')
+      break
+    default:
+      ctx.reply('Хмм, что-то не так')
+      break
+  }
 })
 
-bot.command('mood', async (ctx) => {
-  // @ts-ignore
-  ctx.scene.enter('moodName')
-})
+// bot.command('test', async (ctx) => {
+bot.on('photo', async (ctx) => {
+  try {
+    const photo = ctx.message.photo[0]
+    const photoInfo = await ctx.telegram.getFile(photo.file_id)
 
-bot.command('back', async (ctx) => {
-  // @ts-ignore
-  ctx.scene.leave()
-  ctx.reply('Ладно, давай еще раз')
-})
+    if (photoInfo.file_path) {
+      const { href: imagePath } = await ctx.telegram.getFileLink(photoInfo.file_id)
+      const currentPath = path.resolve(__dirname, './buffer', `${photoInfo.file_unique_id}.jpg`)
+      const response = await axios({
+        method: 'get',
+        url: imagePath,
+        responseType: 'stream',
+      })
+      return new Promise((resolve) => {
+        const stream = fs.createWriteStream(currentPath)
+        response.data.pipe(stream)
+        stream.on('finish', async () => {
+          resolve('')
+          await ctx.reply('загрузил')
+          imageToBase64(currentPath)
+        })
+      })
 
-bot.command('analise', async (ctx) => {
-  // @ts-ignore
-  ctx.scene.enter('roles')
-})
+      // Преобразуйте изображение в base64 и сохраните его в файл
 
-bot.command('test', async (ctx) => {
-  // @ts-ignore
-  ctx.scene.enter('roles')
+      // Удалите фотографию после сохранения base64
+      // fs.unlinkSync(path)
+    }
+
+    // Отправьте сообщение об успешном сохранении и пути к файлу base64
+    ctx.reply(`Фото удалено и base64 сохранен в файле base64.txt`)
+  } catch (error) {
+    console.error('Error handling photo:', error)
+    ctx.reply('Произошла ошибка при обработке фото')
+  }
 })
+// })
 
 bot.on('text', async (ctx) => {
-  await ctx.reply('ты не в сцене /row \n /mood \n /back \n /analise \n /test')
+  // await ctx.reply('ты не в сцене /row \n /mood \n /back \n /analise \n /test')
+  await ctx.reply('Я тут, что сделать?', {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: 'Запись', callback_data: 'row' }],
+        [{ text: 'Добавить настроение', callback_data: 'mood' }],
+        [{ text: 'Анализ', callback_data: 'analise' }],
+        [{ text: 'Назад', callback_data: 'back' }],
+      ],
+    },
+  })
 })
 
 console.log('app running')
