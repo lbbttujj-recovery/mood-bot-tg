@@ -1,10 +1,9 @@
 import { session, Telegraf } from 'telegraf'
 import * as dotenv from 'dotenv'
-import { rowScenes } from './scenes/rowScenes'
 import { Stage } from 'telegraf/scenes'
+
 import process from 'process'
-import { moodScenes } from './scenes/moodScene'
-import { aiScenes } from './scenes/analiseScene'
+import { moodScenes, aiScenes, rowScenes, dataScenes } from './scenes'
 import * as fs from 'fs'
 import { imageToBase64 } from './utils/imageToBase64'
 import path from 'node:path'
@@ -12,9 +11,9 @@ import axios from 'axios'
 
 dotenv.config()
 
-const bot = new Telegraf(process.env.TELEGRAM_TOKEN || '')
+export const bot = new Telegraf(process.env.TELEGRAM_TOKEN || '')
 
-const newMoodStage = new Stage([...rowScenes, ...moodScenes, ...aiScenes])
+const newMoodStage = new Stage([...rowScenes, ...moodScenes, ...aiScenes, ...dataScenes])
 
 bot.use(session())
 // @ts-ignore
@@ -34,6 +33,10 @@ bot.on('callback_query', (ctx) => {
     case 'analise':
       // @ts-ignore
       ctx.scene.enter('roles')
+      break
+    case 'data':
+      // @ts-ignore
+      ctx.scene.enter('data')
       break
     case 'back':
       // @ts-ignore
@@ -93,6 +96,7 @@ bot.on('text', async (ctx) => {
         [{ text: 'Запись', callback_data: 'row' }],
         [{ text: 'Добавить настроение', callback_data: 'mood' }],
         [{ text: 'Анализ', callback_data: 'analise' }],
+        [{ text: 'Показать записи', callback_data: 'data' }],
         [{ text: 'Назад', callback_data: 'back' }],
       ],
     },

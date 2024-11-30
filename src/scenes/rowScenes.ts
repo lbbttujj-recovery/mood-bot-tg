@@ -5,7 +5,6 @@ import * as dotenv from 'dotenv'
 import { createRow } from '../notionOperarions/createRow'
 import * as process from 'process'
 import { moodType } from '../consts'
-import { log } from 'console'
 dotenv.config()
 
 const notion = new Client({ auth: process.env.NOTION_KEY })
@@ -41,7 +40,6 @@ moodScene.action(/back/, async (ctx) => {
 
 moodScene.action(/id=\W+/, async (ctx) => {
   newRow.moodType = ctx.match[0].slice(3)
-  console.log(newRow.moodType)
 
   await ctx.scene.enter('addMoodName')
 })
@@ -49,8 +47,6 @@ moodScene.action(/id=\W+/, async (ctx) => {
 addMoodNameScene.enter(async (ctx) => {
   getMoodDict(notion).then(async (moodDictionary) => {
     if (moodDictionary) {
-      console.log(moodDictionary)
-
       const buttons = [
         ...moodDictionary
           .filter((mood) => mood.type === newRow.moodType)
