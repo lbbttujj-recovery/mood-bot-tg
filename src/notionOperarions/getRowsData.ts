@@ -25,7 +25,6 @@ const formattedDate = (date: Date) => {
 
 export const getRowsDbData = async (notion: Client, period: Period): Promise<Row[]> => {
   const moodDBId = process.env.NOTION_DATABASE_ID || ''
-  console.log(period)
   const response = await notion.databases.query({
     database_id: moodDBId,
     sorts: [{ property: 'Date', direction: 'ascending' }],
@@ -47,7 +46,6 @@ export const getRowsDbData = async (notion: Client, period: Period): Promise<Row
     },
   })
   const rows = response.results.map((el) => (el as DatabaseObjectResponse).properties)
-  console.log(rows)
 
   return rows.map((el) => ({
     // @ts-ignore
